@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X O Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+      letter-spacing: 8px;
+    }
+
+    h1 span:first-child { color: #e94560; }
+    h1 span:last-child  { color: #00d4ff; }
+
+    .status {
+      font-size: 18px;
+      margin-bottom: 24px;
+      color: #aaa;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 110px);
+      grid-template-rows: repeat(3, 110px);
+      gap: 8px;
+    }
+
+    .cell {
+      background: #16213e;
+      border: 2px solid #0f3460;
+      border-radius: 10px;
+      font-size: 52px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .cell:hover { background: #0f3460; }
+    .cell.x     { color: #e94560; cursor: default; }
+    .cell.o     { color: #00d4ff; cursor: default; }
+    .cell.win   { background: #0f3460; border-color: #fff; }
+
+    .btn {
+      margin-top: 28px;
+      padding: 12px 36px;
+      font-size: 16px;
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background: #c73652; }
+  </style>
+</head>
+<body>
+
+  <h1><span>X</span> · <span>O</span></h1>
+  <div class="status" id="status">Player X's Turn</div>
+
+  <div class="board" id="board">
+    <div class="cell" onclick="play(0)"></div>
+    <div class="cell" onclick="play(1)"></div>
+    <div class="cell" onclick="play(2)"></div>
+    <div class="cell" onclick="play(3)"></div>
+    <div class="cell" onclick="play(4)"></div>
+    <div class="cell" onclick="play(5)"></div>
+    <div class="cell" onclick="play(6)"></div>
+    <div class="cell" onclick="play(7)"></div>
+    <div class="cell" onclick="play(8)"></div>
+  </div>
+
+  <button class="btn" onclick="reset()">Restart</button>
+
+  <script>
+    let board = Array(9).fill('');
+    let current = 'X';
+    let over = false;
+
+    const wins = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    function play(i) {
+      if (over || board[i]) return;
+
+      board[i] = current;
+      const cells = document.querySelectorAll('.cell');
+      cells[i].textContent = current;
+      cells[i].classList.add(current.toLowerCase());
+
+      const winner = checkWinner();
+      if (winner) {
+        winner.combo.forEach(i => cells[i].classList.add('win'));
+        document.getElementById('status').textContent = `Player ${winner.who} Wins! 🎉`;
+        over = true;
+      } else if (board.every(v => v)) {
+        document.getElementById('status').textContent = "It's a Draw! 🤝";
+        over = true;
+      } else {
+        current = current === 'X' ? 'O' : 'X';
+        document.getElementById('status').textContent = `Player ${current}'s Turn`;
+      }
+    }
+
+    function checkWinner() {
+      for (const [a, b, c] of wins) {
+        if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+          return { who: board[a], combo: [a, b, c] };
+        }
+      }
+      return null;
+    }
+
+    function reset() {
+      board = Array(9).fill('');
+      current = 'X';
+      over = false;
+      document.getElementById('status').textContent = "Player X's Turn";
+      document.querySelectorAll('.cell').forEach(cell => {
+        cell.textContent = '';
+        cell.className = 'cell';
+      });
+    }
+  </script>
+
+</body>
+</html>
